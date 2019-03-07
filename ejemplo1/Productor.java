@@ -12,24 +12,27 @@ public class Productor extends Thread
 {
     private String prefijo;
     private int numMensajes;
-    private Buzon miBuzon;
+    private Buffer miBufer;
 
-    public Productor(String prefijo, int n, Buzon buzon)
+    public Productor(String prefijo, int n, Buffer buf)
     {
         this.prefijo=prefijo;
         numMensajes=n;
-        miBuzon=buzon;
+        miBufer=buf;
     }
 
     public void run()
     {
+        int aleatorio;
         for(int i=1; i<=numMensajes; i++)
         {
+            aleatorio = (int)(Math.random()*20);
             try
             {
-                sleep((int)(500+500*Math.random()));
+                miBufer.enviaMensaje(aleatorio);
+                System.out.println(prefijo + " genera " + aleatorio);
+                sleep((int)(300+400*Math.random()));
             } catch(InterruptedException e){  }
-            miBuzon.enviaMensaje(prefijo+i);
         }
     }
 }
