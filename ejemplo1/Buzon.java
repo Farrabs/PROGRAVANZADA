@@ -1,5 +1,5 @@
 /*
- * La clase Buzon tiene que estar protegida con un cerrojo
+ * La clase Buffer tiene que estar protegida con un cerrojo
  * El método enviaMensaje debe esperar si el buzón está lleno
  * El método recibeMensaje debe esperar si el buzón está vacío.
  * Cuando un hilo completa su operación, desbloquea a los que estén esperando
@@ -10,67 +10,65 @@ package ejemplo1;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-public class Buzon
+public class Buffer
 {
-    private String mensaje;
-    private boolean hayMensaje=false;
+    public int[] buf;
+    private int in = 0, out = 0, numElem = 0, maximo = 0, resultado =0;
+    
     private Lock cerrojo = new ReentrantLock();
     private Condition buzonLleno = cerrojo.newCondition();
     private Condition buzonVacio = cerrojo.newCondition();
  
-    public void enviaMensaje(String msg)
+    public Buffer(int max) 
     {
-        try
-        {
-            cerrojo.lock();
-            
-            while (hayMensaje)
-            {
-                try {
-                    buzonLleno.await();
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(Buzon.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-            
-            hayMensaje=true;
-            mensaje=msg;
-            
-            buzonVacio.signal();
-        }
-        finally
-        {
-            cerrojo.unlock();
-        }
-        
+        this.maximo = max;
+        buf = new int [max];
     }
- 
-    public String recibeMensaje()
-    {
-        try
-        {
-            cerrojo.lock();
-            
-            while (!hayMensaje)
-            {
-                try {
-                    buzonVacio.await();
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(Buzon.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-            
-            hayMensaje=false;
-            buzonLleno.signal();
-            
-            return mensaje;
+    
+    public void enviaMensaje(int obj) throws InterruptedException {
+        cerrojo.lock();
+        while (numElem==maximo) //Buffer lleno
+        { 
+            buzonLleno.await();
         }
+        try 
+        { 
+            buf[in] = obj;
+            numElem++;
+            in = (in + 1) % maximo;
+            buzonVacio.signal(); //Buffer ya no está vacío
+        } 
+        finally
+        { 
+            cerrojo.unlock(); 
+        }
+}
+
+ 
+    public int recibeMensaje() throws InterruptedException {
+        cerrojo.lock();
+        while (numElem==0) { //Buffer vacío
+            buzonVacio.await();
+         }
+        int obj;
+        try 
+        {
+            obj = buf[out];
+            buf[out] = -1;
+            numElem = numElem - 1;
+            out = (out + 1) % maximo;
+            buzonLleno.signal(); //Buffer ya no está lleno
+            resultado +=obj;
+            return (obj);
+        } 
         finally
         {
-            cerrojo.unlock();
+            cerrojo.unlock(); 
         }
+    }
+    
+    public int getResultado(){
+        return resultado;
     }
 }
