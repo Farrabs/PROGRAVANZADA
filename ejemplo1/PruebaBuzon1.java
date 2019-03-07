@@ -8,17 +8,22 @@ package ejemplo1;
 public class PruebaBuzon1
 {
     public static void main(String[] s)
-    {
-        Buzon buzonX = new Buzon();
-        Productor pedro = new Productor("Pedro ",6,buzonX);
-        Productor juan = new Productor("Juan ",7,buzonX);
-        Productor antonio = new Productor("Antonio ",7,buzonX);
-        Productor luis = new Productor("Luis ",7,buzonX);
-        Consumidor jose = new Consumidor(27,buzonX);
-        pedro.start();
-        juan.start();
-        antonio.start();
-        luis.start();
-        jose.start();
+    { 
+        Buffer buffer = new Buffer(20);
+        Productor A = new Productor("A",70,buffer);
+        Productor B = new Productor("B",70,buffer);
+        Productor C = new Productor("C",70,buffer);
+        Consumidor Jose = new Consumidor("Jose", buffer);
+        Consumidor Ana = new Consumidor("Ana",buffer);
+        Consumidor Maria = new Consumidor("Maria",buffer);
+        //PRODUCTORES
+        A.start();
+        B.start();
+        C.start();
+        
+        //CONSUMIDORES
+        Jose.start();
+        Ana.start();
+        Maria.start();
     }
 }
