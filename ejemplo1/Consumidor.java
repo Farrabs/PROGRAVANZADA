@@ -9,26 +9,29 @@ package ejemplo1;
 
 public class Consumidor extends Thread
 {
-    private int numMensajes;
-    private Buzon miBuzon;
+    private String nombre;
+    private Buffer miBuffer;
+    
 
-    public Consumidor(int numMensajes, Buzon miBuzon)
+    public Consumidor(String nombre, Buffer miBuzon)
     {
-        this.numMensajes=numMensajes;
-        this.miBuzon=miBuzon;
+        this.nombre = nombre;
+        this.miBuffer=miBuzon;
     }
+
 
     @Override
     public void run()
     {
-        for(int i=0; i<numMensajes; i++)
+        while (true)
         {
             try
             {
-                sleep((int)(500+500*Math.random()));
+                sleep((int)(200+600*Math.random()));
+                System.out.println(nombre + " ha leído " + miBuffer.recibeMensaje() + "; Resultado: " + miBuffer.getResultado());
+                
             } catch(InterruptedException e){ }
-                System.out.println(miBuzon.recibeMensaje());
+                
         }
-        System.out.println("Total mensajes leídos: " + numMensajes);
     }
 }
